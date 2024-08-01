@@ -1,7 +1,10 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import { currentUser } from "@clerk/nextjs/server";
+import { AddUser, getUserByEmail } from "@/queries/user";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -9,12 +12,23 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const clerkUser = await currentUser()
+  const clerkEmail = clerkUser?.primaryEmailAddress?.emailAddress ?? ""
+    if(clerkUser){
+       const user = await getUserByEmail(clerkEmail)
+        if(!user){
+            await AddUser(clerkUser)
+        }
+
+    }
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
-      <body>{children}</body>
+      <ClerkProvider>
+        <body>{children}</body>
+      </ClerkProvider>
     </html>
   );
 }
