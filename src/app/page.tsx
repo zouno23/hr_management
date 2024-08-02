@@ -4,7 +4,6 @@ import { getToday, startDay } from "@/queries/employeeDay";
 import { getUserByEmail } from "@/queries/user";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-
 export default async function HomePage() {
   const clerkUser = await currentUser()
   const user = await getUserByEmail(clerkUser?.primaryEmailAddress?.emailAddress ??"")

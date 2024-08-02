@@ -7,6 +7,7 @@ import { setPresence } from "@/queries/employeeDay";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "../ui/use-toast";
+import Loader from "./loader/loader";
 
 export default function SetPresence({
   today,
@@ -15,10 +16,12 @@ export default function SetPresence({
   today: employeeDay | null | undefined;
   UserId: string;
 }) {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
   const now = moment().format("HH:mm:ss");
   const { toast } = useToast();
   const router = useRouter();
-  const [error, setError] = useState("");
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const update = { label: "", value: {} };
   if (!today!.checkInTime) {
@@ -55,24 +58,34 @@ export default function SetPresence({
   if (error.length > 0) throw new Error(error);
   return (
     <form
+      ref={formRef}
       action={async () => {
         try {
           await setPresence(today!.day, UserId, update.value);
-          router.refresh();
           toast({ description: "Presence updated", duration: 2000 });
+          router.refresh();
+          setLoading(false);
         } catch (error) {
           toast({ description: "an error accured making your presence" });
         }
       }}
     >
-      <Button
-        type="submit"
-        ref={buttonRef}
-        disabled={update.label === "See you tomorrow"}
-        className="p-8 text-4xl font-bold"
-      >
-        {update.label}
-      </Button>
+      {loading ? (
+        <Loader />
+      ) : (
+        <Button
+          type="submit"
+          ref={buttonRef}
+          onClick={() => {
+            setLoading(true);
+            formRef.current?.requestSubmit();
+          }}
+          disabled={update.label === "See you tomorrow" ?? loading}
+          className="space-x-2 p-8 text-4xl font-bold"
+        >
+          {update.label}
+        </Button>
+      )}
     </form>
   );
 }

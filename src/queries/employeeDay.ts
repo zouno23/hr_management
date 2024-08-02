@@ -30,6 +30,8 @@ export const startDay = async (id: string) => {
   }
 };
 
+const wait = (t: number) =>
+  new Promise((resolve, reject) => setTimeout(resolve, t));
 export const setPresence = async (
   today: string,
   UserId: string,
@@ -61,6 +63,7 @@ export const setPresence = async (
       },
       where: { id: now!.id },
     });
+    await wait(2000);
     return updated;
   } catch (error) {
     console.log(error);
