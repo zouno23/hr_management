@@ -66,3 +66,24 @@ export const setPresence = async (
     console.log(error);
   }
 };
+
+export const getEmployeeAttendanceByDay = async (day: string) => {
+  try {
+    const attendance = await db.employeeDay.findMany({
+      where: { day: day },
+      include: { user: true },
+    });
+    return attendance;
+  } catch (error) {
+    console.log(error)
+  }
+};
+
+export const getAttendanceByEmployee = async(id:string)=>{
+  try {
+    const employeesWork = await db.employeeDay.findMany({where:{UserId:id},orderBy:{createdAt:"desc"},include:{user:true}})
+    return employeesWork
+  }catch(error){
+    console.log(error)
+  }
+}
