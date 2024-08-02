@@ -5,9 +5,13 @@ import { Button } from "../ui/button";
 import moment from "moment";
 import { setPresence } from "@/queries/employeeDay";
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useToast } from "../ui/use-toast";
 
 export default function SetPresence({today,UserId}:{today:employeeDay | null | undefined,UserId:string}) {
     const now =moment().format("HH:mm:ss")
+    const {toast }= useToast()
+    const router = useRouter()
     const buttonRef= useRef<HTMLButtonElement | null>(null)
     const update = {label:"", value:{}}
     if(!today!.checkInTime){
@@ -31,7 +35,6 @@ export default function SetPresence({today,UserId}:{today:employeeDay | null | u
   .then(response => response.json())
   .then((data:{ip:string}) => {
     const userIP = data.ip;
-    console.log(userIP)
     const companyIPRange = '196.203.216.'; // Example IP range
     if (userIP.startsWith(companyIPRange)) {
       buttonRef.current!.disabled = false;
@@ -46,11 +49,13 @@ export default function SetPresence({today,UserId}:{today:employeeDay | null | u
         <form action={async()=>{
             try {
                 await setPresence(today!.day ,UserId , update.value)
+                router.refresh()
+                toast({description: "Presence updated",  duration: 2000})
             } catch (error) {
-                
+                toast({description:"an error accured making your presence"})
             }
         }}>
-            <Button type="submit" ref={buttonRef} className="text-4xl font-bold p-8">{update.label}</Button>
+            <Button type="submit" ref={buttonRef} disabled={update.label==="See you tomorrow"} className="text-4xl font-bold p-8">{update.label}</Button>
         </form>
 );
 }

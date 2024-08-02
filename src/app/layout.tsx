@@ -1,6 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import "@/styles/globals.css";
-
+import { Toaster } from "@/components/ui/toaster" 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
@@ -27,7 +27,10 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <ClerkProvider>
-        <body>{children}</body>
+        <body>
+        <Toaster />
+          {children}
+          </body>
       </ClerkProvider>
     </html>
   );
